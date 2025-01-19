@@ -7,8 +7,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-
-
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -57,30 +55,19 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  double _counter = 0.0;
-  var myFontSize = 30.0;
+  String imageSource = "images/question-mark.png";
+  late TextEditingController _controller; //late - Constructor in initState()
 
-  void setNewValue(double value)
-  {
-    // _counter = value;
-    setState(() {
-      _counter = value;
-      myFontSize = value;
-    });
+  @override //same as in java
+  void initState() {
+    super.initState(); //call the parent initState()
+    _controller = TextEditingController(); //our late constructor
   }
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      if(_counter < 99){
-        _counter++;
-        myFontSize = _counter;
-      }
-    });
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose(); // clean up memory
   }
 
   @override
@@ -92,51 +79,95 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-              style: TextStyle(fontSize: myFontSize),
-            ),
-            Text(
-              '$_counter',
-              style: TextStyle(fontSize: myFontSize),
-            ),
-            Slider(value: myFontSize, onChanged: setNewValue, min: 0.0, max: 100.0,)
-          ],
+        appBar: AppBar(
+          // TRY THIS: Try changing the color here to a specific color (to
+          // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
+          // change color while the other colors stay the same.
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.
+          title: Text(widget.title),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
+        body: Center(
+          // Center is a layout widget. It takes a single child and positions it
+          // in the middle of the parent.
+          child: Column(
+            // Column is also a layout widget. It takes a list of children and
+            // arranges them vertically. By default, it sizes itself to fit its
+            // children horizontally, and tries to be as tall as its parent.
+            //
+            // Column has various properties to control how it sizes itself and
+            // how it positions its children. Here we use mainAxisAlignment to
+            // center the children vertically; the main axis here is the vertical
+            // axis because Columns are vertical (the cross axis would be
+            // horizontal).
+            //
+            // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
+            // action in the IDE, or press "p" in the console), to see the
+            // wireframe for each widget.
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                "Lab2 LoginPage",
+                style: TextStyle(
+                    fontSize: 30,
+                    color: Colors.blueAccent,
+                    fontWeight: FontWeight.bold),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 5),
+                child: Form(
+                    child: Column(
+                  children: [
+                    TextFormField(
+                      keyboardType: TextInputType.text,
+                      decoration: InputDecoration(
+                          labelText: "Login",
+                          hintText: "Enter Login name:",
+                          border: OutlineInputBorder()),
+                      onChanged: (String value) {},
+                    ),
+                    SizedBox.fromSize(
+                      size: Size(5, 5),
+                    ),
+                    TextFormField(
+                      keyboardType: TextInputType.text,
+                      controller: _controller,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                          labelText: "Password",
+                          hintText: "Enter Secret Password:",
+                          border: OutlineInputBorder()),
+                      onChanged: (String value) {},
+                    ),
+                    ElevatedButton(
+                        onPressed: () {
+                          var input = _controller.value.text;
+                          if (input == "QWERTY123") {
+                            setState(() {
+                              imageSource = "images/idea.png";
+                            });
+                          } else {
+                            setState(() {
+                              imageSource = "images/stop.png";
+                            });
+                          }
+                        },
+                        child: Text(
+                          "Login",
+                          style:
+                              TextStyle(color: Colors.blue[700], fontSize: 30),
+                        )),
+                    Image.asset(imageSource, width: 200, height: 200)
+                    //   <a href="https://www.flaticon.com/free-icons/question-mark" title="question mark icons">Question mark icons created by Freepik - Flaticon</a>
+                    //     <a href="https://www.flaticon.com/free-icons/light-bulb" title="light bulb icons">Light bulb icons created by Freepik - Flaticon</a>
+                    //     <a href="https://www.flaticon.com/free-icons/stop-sign" title="stop sign icons">Stop sign icons created by Bartama Graphic - Flaticon</a>
+                  ],
+                )),
+              ),
+            ],
+          ),
+        ));
   }
 }
