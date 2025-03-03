@@ -75,7 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    // const SizedBox(width: 10),
                     Expanded(
                       child: TextField(
                         controller: _quantityController,
@@ -106,7 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    '${index + 1}. ${_items[index]['item']}: ${_items[index]['quantity']}',
+                                    '${index + 1}: ${_items[index]['item']}: ${_items[index]['quantity']}',
                                   ),
                                 ],
                               ),
