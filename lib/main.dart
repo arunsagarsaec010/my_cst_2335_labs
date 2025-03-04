@@ -89,15 +89,18 @@ class _MyHomePageState extends State<MyHomePage> {
     //var database = await
     //open the database:
     $FloorAppDatabase.databaseBuilder('app_database.db').build()
-        .then((database) async {
+        .then((database) {
 
       myDAO = database.todoDao;
       //get Items from database:
-      var it = await myDAO.getAllItems();
-
-      setState(()  {
-        items = it; //Future<> , asnynchronous
+      myDAO.getAllItems().then((listOfItems){
+        setState(()  {
+          items.clear();
+          items.addAll(listOfItems);//Future<> , asnynchronous
+        });
       });
+
+
 
     } ) ;
   }
@@ -152,7 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
               TextField(controller: _controller,
                 decoration: InputDecoration(
                   hintText: "Type something here",
-                  labelText:"Put your first name here",
+                  labelText:"Enter a todo item",
                   border: OutlineInputBorder(),
                 ),
               )),
@@ -160,21 +163,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
               ElevatedButton( onPressed: ( ){
-                //what was typed is:
-                var input = _controller.value.text;
-                //generate UNIQUE ids
-                var todoItem = TodoItem(TodoItem.ID++, input);
-                myDAO.insertItem(todoItem);
-
-
-                setState(() {  //redraw the GUI
-
-                  items.add(todoItem);//add the item to the LIST
-
-                  _controller.text = ""; //reset the textField
-                });
+                if(_controller.value.text.isNotEmpty){
+                  setState(() {
+                    var newItem = TodoItem(TodoItem.ID++, _controller.value.text);
+                    myDAO.insertItem(newItem);
+                    items.add(newItem);
+                    _controller.text ="";
+                  });
+                } else{
+                  var snackBar = const SnackBar(content: Text("Input field is required!!"));
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                }
               }, //Lambda, or anonymous function
-                child:Text("Add ToDO"),  )
+                child:Text("Add"),  )
             ],),
             Flexible(child:
             ListView.builder(
