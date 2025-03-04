@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_cst_2335_labs/database.dart';
 
 void main() {
   runApp(const MyApp());
@@ -43,6 +44,19 @@ class _MyHomePageState extends State<MyHomePage> {
         _quantityController.clear();
       });
     }
+  }
+
+  void initState(){
+    super.initState();
+
+    $FloorAppDatabase.databaseBuilder("app_dtatbase.db").build().then((database){
+      myDAO =  database.todoDao;
+      myDAO.getAllItmes().then((listOfItems){
+        setState(() {
+          wor
+        });
+      })
+     });
   }
 
   void _deleteItem(int index) {
