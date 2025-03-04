@@ -72,6 +72,8 @@ class _$AppDatabase extends AppDatabase {
     changeListener = listener ?? StreamController<String>.broadcast();
   }
 
+  TodoDao? _todoDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -100,5 +102,55 @@ class _$AppDatabase extends AppDatabase {
       },
     );
     return sqfliteDatabaseFactory.openDatabase(path, options: databaseOptions);
+  }
+
+  @override
+  TodoDao get todoDao {
+    return _todoDaoInstance ??= _$TodoDao(database, changeListener);
+  }
+}
+
+class _$TodoDao extends TodoDao {
+  _$TodoDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _todoItemInsertionAdapter = InsertionAdapter(
+            database,
+            'TodoItem',
+            (TodoItem item) =>
+                <String, Object?>{'id': item.id, 'todoItem': item.todoItem}),
+        _todoItemDeletionAdapter = DeletionAdapter(
+            database,
+            'TodoItem',
+            ['id'],
+            (TodoItem item) =>
+                <String, Object?>{'id': item.id, 'todoItem': item.todoItem});
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<TodoItem> _todoItemInsertionAdapter;
+
+  final DeletionAdapter<TodoItem> _todoItemDeletionAdapter;
+
+  @override
+  Future<List<TodoItem>> getAllItems() async {
+    return _queryAdapter.queryList('Select * from TodoItem',
+        mapper: (Map<String, Object?> row) =>
+            TodoItem(row['id'] as int, row['todoItem'] as String));
+  }
+
+  @override
+  Future<void> insertItem(TodoItem itm) async {
+    await _todoItemInsertionAdapter.insert(itm, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> deleteItem(TodoItem itm) async {
+    await _todoItemDeletionAdapter.delete(itm);
   }
 }

@@ -9,5 +9,5 @@ part 'database.g.dart';
 
 @Database(version: 1, entities: [TodoItem])
 abstract class AppDatabase extends FloorDatabase {
-
+  TodoDao get todoDao;
 }
