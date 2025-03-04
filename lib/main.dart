@@ -46,18 +46,17 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void initState(){
-    super.initState();
-
-    $FloorAppDatabase.databaseBuilder("app_dtatbase.db").build().then((database){
-      myDAO =  database.todoDao;
-      myDAO.getAllItmes().then((listOfItems){
-        setState(() {
-          wor
-        });
-      })
-     });
-  }
+  // void initState(){
+  //   super.initState();
+  //
+  //   $FloorAppDatabase.databaseBuilder("app_dtatbase.db").build().then((database){
+  //     myDAO =  database.todoDao;
+  //     myDAO.getAllItmes().then((listOfItems){
+  //       setState(() {
+  //       });
+  //     });
+  //    });
+  // }
 
   void _deleteItem(int index) {
     setState(() {
