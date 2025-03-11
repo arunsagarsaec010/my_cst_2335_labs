@@ -80,7 +80,7 @@ class _$AppDatabase extends AppDatabase {
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 1,
+      version: 2,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -96,7 +96,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `TodoItem` (`id` INTEGER NOT NULL, `todoItem` TEXT NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `TodoItem` (`id` INTEGER NOT NULL, `todoItem` TEXT NOT NULL, `quantity` TEXT NOT NULL, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -118,14 +118,20 @@ class _$TodoDao extends TodoDao {
         _todoItemInsertionAdapter = InsertionAdapter(
             database,
             'TodoItem',
-            (TodoItem item) =>
-                <String, Object?>{'id': item.id, 'todoItem': item.todoItem}),
+            (TodoItem item) => <String, Object?>{
+                  'id': item.id,
+                  'todoItem': item.todoItem,
+                  'quantity': item.quantity
+                }),
         _todoItemDeletionAdapter = DeletionAdapter(
             database,
             'TodoItem',
             ['id'],
-            (TodoItem item) =>
-                <String, Object?>{'id': item.id, 'todoItem': item.todoItem});
+            (TodoItem item) => <String, Object?>{
+                  'id': item.id,
+                  'todoItem': item.todoItem,
+                  'quantity': item.quantity
+                });
 
   final sqflite.DatabaseExecutor database;
 
@@ -140,8 +146,8 @@ class _$TodoDao extends TodoDao {
   @override
   Future<List<TodoItem>> getAllItems() async {
     return _queryAdapter.queryList('Select * from TodoItem',
-        mapper: (Map<String, Object?> row) =>
-            TodoItem(row['id'] as int, row['todoItem'] as String));
+        mapper: (Map<String, Object?> row) => TodoItem(row['id'] as int,
+            row['todoItem'] as String, row['quantity'] as String));
   }
 
   @override

@@ -28,6 +28,7 @@ class DetailsPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             DetailRow('Name:', selectedItem.todoItem),
+            DetailRow('Quantity', selectedItem.quantity),
             DetailRow('ID:', selectedItem.id.toString()),
             const SizedBox(height: 24),
             Row(
