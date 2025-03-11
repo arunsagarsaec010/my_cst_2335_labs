@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Todo List'),
+      home: const MyHomePage(title: 'Week9 Lab'),
     );
   }
 }
@@ -116,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: TextField(
                 controller: _controller,
                 decoration: const InputDecoration(
-                  hintText: "New todo item",
+                  hintText: "Enter item",
                   border: OutlineInputBorder(),
                 ),
               ),
