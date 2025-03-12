@@ -1,9 +1,8 @@
-import 'package:floor/floor.dart';
 import 'package:flutter/material.dart';
 import 'package:my_cst_2335_labs/todo_item.dart';
 import 'database.dart';
 import 'package:my_cst_2335_labs/todo_dao.dart';
-import 'details_page.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -50,23 +49,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void initializeDatabase() async {
-    final database = await $FloorAppDatabase
-        .databaseBuilder('app_database.db')
-        .addMigrations([
-      Migration(1, 2, (database) async {
-        await database.execute('DROP TABLE IF EXISTS TodoItem');
-        await database.execute('''
-          CREATE TABLE TodoItem (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            todoItem TEXT NOT NULL,
-            quantity TEXT NOT NULL
-          )
-        ''');
-      }),
-    ])
-        .build();
+    final database =
+        await $FloorAppDatabase.databaseBuilder('app_database.db').build();
     myDAO = database.todoDao;
-    setState(() => isDatabaseInitialized = true); // Update the flag
+    setState(() => isDatabaseInitialized = true);
     refreshItems();
   }
 
@@ -84,83 +70,102 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isWideScreen = MediaQuery.of(context).size.width > 720;
-
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: isWideScreen
-            ? Row(
+        child: Column(
           children: [
-            Expanded(child: buildListSection()),
-            Expanded(child: buildDetailSection()),
+            Row(
+              children: [
+                Flexible(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: const InputDecoration(
+                      hintText: "Enter item",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Flexible(
+                  child: TextField(
+                    controller: _qcontroller,
+                    decoration: const InputDecoration(
+                      hintText: "Quantity",
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: isDatabaseInitialized ? addItem : null,
+                  child: const Text("Add"),
+                ),
+              ],
+            ),
+            Expanded(
+              child: items.isEmpty
+                  ? const Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [Text('There are no items in the list')],
+                    )
+                  : ListView.builder(
+                      itemCount: items.length,
+                      itemBuilder: (context, rowNum) {
+                        return ListTile(
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Item: ${items[rowNum].todoItem}",
+                                style: const TextStyle(fontSize: 30.0),
+                              ),
+                            ],
+                          ),
+                          subtitle: Text(
+                              'Quantity: ${items[rowNum].quantity}\n ID: $rowNum'),
+                          onLongPress: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: const Text('Delete Item'),
+                                  content: const Text(
+                                      'Are you sure you want to delete this item?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text('No'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          selectedItem = items[rowNum];
+                                          deleteItem(); // Calls the original deleteItem method
+                                        });
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text('Yes'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        );
+                      },
+                    ),
+            ),
           ],
-        )
-            : selectedItem == null
-            ? buildListSection()
-            : buildDetailSection(),
+        ),
       ),
-    );
-  }
-
-  Widget buildListSection() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Flexible(
-              child: TextField(
-                controller: _controller,
-                decoration: const InputDecoration(
-                  hintText: "Enter item",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Flexible(
-              child: TextField(
-                controller: _qcontroller, // Add the quantity controller
-                decoration: const InputDecoration(
-                  hintText: "Quantity",
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number, // Set keyboard type to number
-              ),
-            ),
-            const SizedBox(width: 10),
-            ElevatedButton(
-              onPressed: isDatabaseInitialized ? addItem : null,
-              child: const Text("Add"),
-            ),
-          ],
-        ),
-        Expanded(
-          child: ListView.builder(
-            itemCount: items.length,
-            itemBuilder: (context, index) => ListTile(
-              title: Text(items[index].todoItem),
-              subtitle: Text('ID: ${items[index].id}, Quantity: ${items[index].quantity}'), // Display quantity
-              onTap: () => setState(() => selectedItem = items[index]),
-            ),
-          ),
-        ),
-      ],
-
-    );
-  }
-
-  Widget buildDetailSection() {
-    return selectedItem == null
-        ? const Center(child: Text('Select an item'))
-        : DetailsPage(
-      selectedItem: selectedItem!,
-      deleteItem: deleteItem,
-      closeDetails: () => setState(() => selectedItem = null),
     );
   }
 
@@ -172,7 +177,8 @@ class _MyHomePageState extends State<MyHomePage> {
       return;
     }
 
-    final newItem = TodoItem(TodoItem.ID++, _controller.text, _qcontroller.text);
+    final newItem =
+        TodoItem(TodoItem.ID++, _controller.text, _qcontroller.text);
     await myDAO.insertItem(newItem);
     _controller.clear();
     _qcontroller.clear();
